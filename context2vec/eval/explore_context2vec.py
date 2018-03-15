@@ -8,7 +8,7 @@ returns the top-10 target words whose embedding is most similar to the sententia
 returns the top-10 target words whose embedding is most similar to the target embedding of t (target-to-target similarity)
 
 >> c1 c2 [t] c3 c4 ...
-returns the top-10 target words whose combined similarity to both sentential context and target embedding is highest 
+returns the top-10 target words whose combined similarity to both sentential context and target embedding is highest
 (not giving very good results at the moment...)
 
 '''
@@ -42,7 +42,7 @@ def parse_input(line):
                 word = word[1:-1]
             sent[i] = word
     return sent, target_pos
-    
+
 
 def mult_sim(w, target_v, context_v):
     target_similarity = w.dot(target_v)
@@ -50,10 +50,10 @@ def mult_sim(w, target_v, context_v):
     context_similarity = w.dot(context_v)
     context_similarity[context_similarity<0] = 0.0
     return (target_similarity * context_similarity)
- 
+
 
 if len(sys.argv) < 2:
-    print >> sys.stderr, "Usage: %s <model-param-file>"  % (sys.argv[0])
+    print(sys.stderr, "Usage: %s <model-param-file>"  % (sys.argv[0]))
     sys.exit(1)
 
 model_param_file = sys.argv[1]
@@ -62,13 +62,14 @@ gpu = -1 # todo: make this work with gpu
 
 if gpu >= 0:
     cuda.check_cuda_available()
-    cuda.get_device(gpu).use()    
+    cuda.get_device(gpu).use()
+
 xp = cuda.cupy if gpu >= 0 else numpy
 
 model_reader = ModelReader(model_param_file)
-w = model_reader.w
-word2index = model_reader.word2index
-index2word = model_reader.index2word
+w = model_reader.w # embedding
+word2index = model_reader.word2index # words mapped to index
+index2word = model_reader.index2word # index mapped to words
 model = model_reader.model
 
 while True:
@@ -76,29 +77,31 @@ while True:
         line = six.moves.input('>> ')
         sent, target_pos = parse_input(line)
         if target_pos == None:
-            raise ParseException("Can't find the target position.") 
-        
+            raise ParseException("Can't find the target position.")
+
         if sent[target_pos] == None:
             target_v = None
         elif sent[target_pos] not in word2index:
             raise ParseException("Target word is out of vocabulary.")
         else:
             target_v = w[word2index[sent[target_pos]]]
+
         if len(sent) > 1:
-            context_v = model.context2vec(sent, target_pos) 
+            context_v = model.context2vec(sent, target_pos)
             context_v = context_v / xp.sqrt((context_v * context_v).sum())
+        # this code finds similarity for one target
         else:
             context_v = None
-        
+
         if target_v is not None and context_v is not None:
             similarity = mult_sim(w, target_v, context_v)
         else:
             if target_v is not None:
                 v = target_v
             elif context_v is not None:
-                v = context_v                
+                v = context_v
             else:
-                raise ParseException("Can't find a target nor context.")   
+                raise ParseException("Can't find a target nor context.")
             similarity = (w.dot(v)+1.0)/2 # Cosine similarity can be negative, mapping similarity to [0,1]
 
         count = 0
@@ -112,12 +115,10 @@ while True:
     except EOFError:
         break
     except ParseException as e:
-        print "ParseException: {}".format(e)                
+        print("ParseException: {}".format(e))
     except Exception:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "*** print_tb:"
+        print("*** print_tb:")
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print "*** print_exception:"
+        print("*** print_exception:")
         traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-
-

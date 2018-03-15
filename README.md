@@ -1,4 +1,5 @@
-# The context2vec toolkit
+# The context2vec toolkit  
+### Updated for python 3.6 and Chainer v3
 
 With this code you can:
 * Use our pre-trained models to represent sentential contexts of target words and target words themselves with low-dimensional vector representations.
@@ -11,9 +12,9 @@ Oren Melamud, Jacob Goldberger, Ido Dagan. CoNLL, 2016 [[pdf]](http://u.cs.biu.a
 
 ## Requirements
 
-* Python 2.7
-* Chainer 1.7 ([chainer](http://chainer.org/))
-* NLTK 3.0 ([NLTK](http://www.nltk.org/))  - optional (only required for the AWE baseline and MSCC evaluation)
+* Python 3.6
+* Chainer 3.4 ([chainer](http://chainer.org/))
+* NLTK 3.0 ([NLTK](http://www.nltk.org/))  - optional (only required for the AWE baseline and MSCC evaluation) (Compatibility test pending with python 3.6 and chainer v3)
 
 ## Installation
 

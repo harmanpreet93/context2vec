@@ -91,8 +91,9 @@ def parse_arguments():
     return args 
     
 
-
+print('Arguments parsing started!')
 args = parse_arguments()
+print('Arguments parsed!')
 
 context_word_units = args.unit
 lstm_hidden_units = IN_TO_OUT_UNITS_RATIO*args.unit
@@ -155,7 +156,7 @@ for epoch in range(args.epoch):
             last_accum_loss = float(accum_loss)
             last_word_count = word_count
 
-    print 'accum words per epoch', word_count, 'accum_loss', accum_loss, 'accum_loss/word', accum_mean_loss
+    print('accum words per epoch', word_count, 'accum_loss', accum_loss, 'accum_loss/word', accum_mean_loss)
     reader.close()
     
 if args.wordsfile != None:        
